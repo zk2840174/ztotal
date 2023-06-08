@@ -33,7 +33,7 @@
           <tbody>
           <tr th:each="todo :${pageResponseDTO.list}">
             <td>1.</td>
-            <td>[[todo]]</td>
+            <td>[[${todo.tno}]]</td>
             <td>
               <div class="progress progress-xs">
                 <div class="progress-bar progress-bar-danger" style="width: 55%"></div>
@@ -48,17 +48,87 @@
       </div>
       <!-- /.card-body -->
       <div class="card-footer clearfix">
-        <ul class="pagination pagination-sm m-0 float-right">
-          <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
-          <li class="page-item"><a class="page-link" href="#">1</a></li>
-          <li class="page-item"><a class="page-link" href="#">2</a></li>
-          <li class="page-item"><a class="page-link" href="#">3</a></li>
-          <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
+        <ul class="pagination pagination-sm m-0 float-right pageUL">
+          
         </ul>
       </div>
     </div>
     <!-- /.card -->
 
+    <form  class="actionForm" th:action=${'/todo/list'} method="get">
+        <input type="hidden" name="page" >
+        <input type="hidden" name="size" th:value="${pageRequestDTO.size}" >
+    </form>
+
   </div>
+
+  <script layout:fragment="script" th:inline="javascript">
+    
+    const pageUL = document.querySelector(".pageUL")
+
+    const form = document.querySelector(".actionForm")
+
+    const pageDOM = form.querySelector("form > input[name='page'] ")
+
+    const {page,size} = [[${pageRequestDTO}]]
+    const {total} = [[${pageResponseDTO}]]
+
+    console.log(page,size, total)
+
+    function makePage (page,size, total) {
+      
+      let result =""
+
+      const startNum =  (Math.ceil(page/10.0)  * 10) -9
+
+      const gap = (startNum - 1) * (10)
+
+      console.log("gap: " + gap)
+
+      const loopCount = (total  - (gap + 1)) / 10
+
+      console.log(loopCount)
+
+      if(startNum !== 1){
+        const str = `<li class="page-item"><a class="page-link" href="${startNum -1}">&laquo;</a></li>`
+        result += str
+      }
+
+
+      for(let i = 0; i < loopCount ; i++){
+
+        const str = ` <li class="page-item"><a class="page-link" href="${i + startNum}">${i + startNum}</a></li>`
+
+        result += str
+      }
+
+      if(total % 100 === 1){
+        const str = `<li class="page-item"><a class="page-link" href="${startNum + 10}">&raquo;</a></li>`
+        result += str
+      }
+
+      return result
+    } 
+
+    const pageStr = makePage(page, size,total)
+
+    pageUL.innerHTML = pageStr
+
+    pageUL.addEventListener("click", (e) => {
+
+      e.preventDefault()
+      e.stopPropagation()
+
+      const target = e.target
+      const pageNum = target.getAttribute("href")
+    
+      pageDOM.value = pageNum
+
+      form.submit()
+
+    },false)
+
+  </script>
+
 </body>
 </html>
