@@ -1,7 +1,12 @@
 package org.zerock.bj2.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
+import org.zerock.bj2.dto.PageRequestDTO;
+import org.zerock.bj2.dto.PageResponseDTO;
 import org.zerock.bj2.dto.ReplyDTO;
+import org.zerock.bj2.dto.TodoDTO;
 import org.zerock.bj2.mappers.ReplyMapper;
 import org.zerock.bj2.mappers.TodoMapper;
 
@@ -41,6 +46,24 @@ public class ReplyServiceImpl implements ReplyService{
     }
 
     return result;
+  }
+  @Override
+  public PageResponseDTO<ReplyDTO> getList(Long tno, PageRequestDTO pageRequestDTO) {
+    
+    pageRequestDTO.setSize(100);
+
+    List<ReplyDTO> list = replyMapper.selectList(tno, pageRequestDTO);
+    int total = replyMapper.getTnoCount(tno);
+
+    return PageResponseDTO.<ReplyDTO>withAll()
+    .list(list)
+    .total(total)
+    .build();
+  }
+  @Override
+  public ReplyDTO getOne(Long tno) {
+    
+    return replyMapper.selectOne(tno);
   }
 
 }
